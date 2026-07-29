@@ -1,10 +1,9 @@
-name: "astrbot_plugin_gif_master"
-version: "3.1.2"
+name: astrbot_plugin_gif_master
+desc: "GIF全能魔术工具箱，支持魔法变换、对称镜像、视频转GIF、套娃消息及动感表情包模板"
+help: "发送 /gif倒放、/转GIF、/摸头 等指令使用"
+version: "v3.1.2"
 author: "Astraea35"
-repo: "https://github.com/Astraea35/astrbot_plugin_gif_master"
-display_name: "GIF全能魔术工具箱"
-desc: "模组化GIF套件，支持魔法变换、对称镜像、视频转GIF、套娃消息及动感表情包模板。"
-help: "模组化GIF套件，支持魔法变换、对称镜像、视频转GIF、套娃消息及动感表情包模板。"
+repo: https://github.com/Astraea35/astrbot_plugin_gif_master
 astrbot_version: ">=4.0.0"
 support_platforms:
   - aiocqhttp

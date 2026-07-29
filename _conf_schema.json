@@ -1,0 +1,49 @@
+{
+    "send_mode": {
+        "description": "输出方式：‘图片模式’会被识别为表情包；‘文件模式’发送原文件（避免手机端画质受限）。",
+        "type": "string",
+        "options": ["发送图片/表情包", "作为文件发送"],
+        "default": "发送图片/表情包"
+    },
+    "enable_at_avatar": {
+        "description": "是否允许在未检测到图片时，通过 @用户 获取其 QQ 头像进行处理",
+        "type": "bool",
+        "default": true
+    },
+    "max_size_mb": {
+        "description": "允许处理的最大输入图片/视频大小 (MB)",
+        "type": "int",
+        "default": 10
+    },
+    "default_width": {
+        "description": "视频转GIF的默认输出宽度（像素，推荐320-480之间）",
+        "type": "int",
+        "default": 400
+    },
+    "max_width": {
+        "description": "视频转GIF的最大宽度上限限制，防止服务器内存溢出(OOM)",
+        "type": "int",
+        "default": 720
+    },
+    "default_fps": {
+        "description": "视频转GIF的默认输出帧率（FPS，推荐10-20之间）",
+        "type": "int",
+        "default": 15
+    },
+    "font_size": {
+        "type": "int",
+        "description": "套娃表情包文字大小",
+        "default": 24
+    },
+    "bg_style": {
+        "type": "string",
+        "description": "套娃表情包背景色画布风格",
+        "default": "white",
+        "options": ["white", "black"]
+    },
+    "font_path": {
+        "type": "string",
+        "description": "自定义字体路径 (留空则系统自动匹配内置黑体)",
+        "default": ""
+    }
+}

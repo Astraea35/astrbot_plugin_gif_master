@@ -9,8 +9,9 @@ from .meme.symmetry import SymmetryProcessor
 from .meme.ffmpeg_convert import FfmpegConverter
 from .meme.nested import NestedProcessor
 from .meme.templates import TemplateProcessor
+from .meme.patina import PatinaProcessor
 
-@register("gif_master", "AI_Meme_Master", "GIF全能魔术工具箱 (明确指令版)", "3.1.2", "移除模糊的翻转指令，全量规范为明确的上下/左右翻转")
+@register("gif_master", "AI_Meme_Master", "GIF与图像全能工具箱", "3.2.0", "整合 GIF 动效、互动模板与 Patina 图像特效")
 class GifMasterPlugin(Star):
     def __init__(self, context: Context, config: dict = None):
         super().__init__(context)
@@ -25,6 +26,7 @@ class GifMasterPlugin(Star):
         self.ffmpeg_proc = FfmpegConverter(self.temp_dir, self.config, self.resolver)
         self.nested_proc = NestedProcessor(self.temp_dir, self.config, self.resolver)
         self.template_proc = TemplateProcessor(self.temp_dir, self.config, self.resolver)
+        self.patina_proc = PatinaProcessor(self.temp_dir, self.config, self.resolver)
 
     # ====== 1. 变换类指令（精简模糊指令，全面明确方向） ======
     @filter.command("gif倒放")
@@ -116,3 +118,19 @@ class GifMasterPlugin(Star):
     async def cmd_do(self, event: AstrMessageEvent): await self.template_proc.handle_template(event, "do", require_at=True)
     @filter.command("抽你")
     async def cmd_lash(self, event: AstrMessageEvent): await self.template_proc.handle_template(event, "lash", require_at=True)
+
+    # ====== 4. Patina 图像特效 ======
+    @filter.command("幻影")
+    async def cmd_mirage(self, event: AstrMessageEvent): await self.patina_proc.handle(event, "mirage")
+    @filter.command("幻影坦克")
+    async def cmd_mirage_alias(self, event: AstrMessageEvent): await self.patina_proc.handle(event, "mirage")
+    @filter.command("光棱")
+    async def cmd_prism(self, event: AstrMessageEvent): await self.patina_proc.handle(event, "prism")
+    @filter.command("光棱坦克")
+    async def cmd_prism_alias(self, event: AstrMessageEvent): await self.patina_proc.handle(event, "prism")
+    @filter.command("像素化")
+    async def cmd_pixelate(self, event: AstrMessageEvent): await self.patina_proc.handle(event, "pixelate")
+    @filter.command("相机镜框")
+    async def cmd_camera(self, event: AstrMessageEvent): await self.patina_proc.handle(event, "camera")
+    @filter.command("原图坦克")
+    async def cmd_raw_tank(self, event: AstrMessageEvent): await self.patina_proc.handle(event, "raw")

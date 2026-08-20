@@ -4,6 +4,7 @@ import base64
 import shutil
 import asyncio
 import aiohttp
+import re
 import urllib.parse
 from pathlib import PurePosixPath
 from PIL import Image as PILImage, ImageFont
@@ -79,6 +80,62 @@ class MediaResolver:
                             if target_qq:
                                 return f"http://q.qlogo.cn/headimg_dl?dst_uin={target_qq}&spec=640"
         return None
+
+    async def get_media_urls(self, event: AstrMessageEvent, type_req="image", count=1, include_at=False):
+        """Collect multiple media URLs while reusing normal message/reply resolution."""
+        urls = []
+
+        def extract_path(comp):
+            return getattr(comp, "url", None) or getattr(comp, "file_id", None) or getattr(comp, "path", None) or getattr(comp, "file", None)
+
+        allowed_classes = [type_req.capitalize(), "File"]
+        allowed_types = [type_req, "file", "flash"] if type_req == "image" else [type_req, "file"]
+        chains = []
+        if hasattr(event.message_obj, "message_chain"):
+            chains.append(event.message_obj.message_chain)
+        if hasattr(event.message_obj, "message"):
+            chains.append(event.message_obj.message)
+
+        for chain in chains:
+            for comp in chain:
+                comp_type = getattr(comp, "type", "")
+                if comp.__class__.__name__ in allowed_classes or comp_type in allowed_types:
+                    value = extract_path(comp)
+                    if value and value not in urls:
+                        urls.append(value)
+                elif include_at and (comp.__class__.__name__ == "At" or comp_type == "at"):
+                    target_qq = getattr(comp, "qq", None) or getattr(comp, "id", None)
+                    if target_qq:
+                        urls.append(f"http://q.qlogo.cn/headimg_dl?dst_uin={target_qq}&spec=640")
+                if len(urls) >= count:
+                    return urls[:count]
+
+        if include_at:
+            raw_text = str(getattr(event.message_obj, "raw_message", "") or "")
+            for qq in re.findall(r"[1-9]\d{4,10}", raw_text):
+                avatar_url = f"http://q.qlogo.cn/headimg_dl?dst_uin={qq}&spec=640"
+                if avatar_url not in urls:
+                    urls.append(avatar_url)
+                if len(urls) >= count:
+                    return urls[:count]
+
+        reply = next((c for chain in chains for c in chain
+                      if c.__class__.__name__ == "Reply" or getattr(c, "type", "") == "reply"), None)
+        if reply and event.get_platform_name() == "aiocqhttp" and hasattr(event, "bot"):
+            try:
+                msg_id = getattr(reply, "id", None) or getattr(reply, "message_id", None)
+                if msg_id:
+                    res = await event.bot.api.call_action("get_msg", message_id=int(msg_id))
+                    for comp in res.get("message", []):
+                        if comp.get("type") in allowed_types:
+                            value = comp.get("data", {}).get("url") or comp.get("data", {}).get("file_id") or comp.get("data", {}).get("file")
+                            if value and value not in urls:
+                                urls.append(value)
+                                if len(urls) >= count:
+                                    break
+            except Exception:
+                pass
+        return urls[:count]
 
     async def download_media(self, url: str, target_path: str, event: AstrMessageEvent):
         if not url:
@@ -229,7 +286,8 @@ class MediaResolver:
         if self.config.get("send_mode") == "作为文件发送":
             with open(file_path, "rb") as f:
                 b64 = base64.b64encode(f.read()).decode()
-            file_name = f"meme_{uuid.uuid4().hex[:6]}.webp"
+            extension = os.path.splitext(file_path)[1] or ".webp"
+            file_name = f"meme_{uuid.uuid4().hex[:6]}{extension}"
             target = event.message_obj.group_id or event.message_obj.sender.user_id
             action = 'send_group_msg' if event.message_obj.group_id else 'send_private_msg'
             payload = {"file": f"base64://{b64}", "name": file_name}

@@ -57,5 +57,23 @@
         "type": "string",
         "description": "自定义字体路径 (留空则系统自动匹配内置黑体)",
         "default": ""
-    }
+    },
+    "mirage_color_mode": {
+        "description": "幻影坦克输出颜色",
+        "type": "string",
+        "options": ["全彩输出", "黑白输出"],
+        "default": "全彩输出"
+    },
+    "mirage_blend_weight": {
+        "description": "幻影坦克里图混合权重 (0.0-1.0)",
+        "type": "float",
+        "default": 0.7
+    },
+    "prism_it": { "description": "光棱里图色阶端点", "type": "int", "default": 32 },
+    "prism_ct": { "description": "光棱表图色阶端点", "type": "int", "default": 96 },
+    "prism_ic": { "description": "光棱里图对比度", "type": "int", "default": 50 },
+    "prism_cc": { "description": "光棱表图对比度", "type": "int", "default": 50 },
+    "prism_reverse": { "description": "光棱反向隐写", "type": "bool", "default": false },
+    "default_pixel_p": { "description": "像素化默认强度", "type": "int", "default": 50 },
+    "camera_device_name": { "description": "相机镜框显示的机型", "type": "string", "default": "ASTRBOT 14 ULTRA" }
 }

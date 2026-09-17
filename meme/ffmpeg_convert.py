@@ -36,18 +36,18 @@ class FfmpegConverter:
             rotation = int(rot_match.group(1)) % 360
         
         vid_path = os.path.join(self.temp_dir, f"vid_{uuid.uuid4().hex[:8]}.mp4")
-        webp_path = os.path.join(self.temp_dir, f"res_{uuid.uuid4().hex[:8]}.webp")
+        gif_path = os.path.join(self.temp_dir, f"res_{uuid.uuid4().hex[:8]}.gif")
         
         try:
             await self.resolver.download_media(url, vid_path, event)
-            await asyncio.to_thread(self._process_ffmpeg, vid_path, webp_path, width, speed, reverse, rotation, fps)
+            await asyncio.to_thread(self._process_ffmpeg, vid_path, gif_path, width, speed, reverse, rotation, fps)
             if os.path.exists(vid_path):
                 os.remove(vid_path)
-            await self.resolver.respond_result(event, webp_path)
+            await self.resolver.respond_result(event, gif_path)
         except Exception as e:
             if os.path.exists(vid_path):
                 os.remove(vid_path)
-            await event.send(event.plain_result(f"❌ 视频转 WebP 失败: {str(e)}"))
+            await event.send(event.plain_result(f"❌ 视频转 GIF 失败: {str(e)}"))
 
     def _process_ffmpeg(self, in_p, out_p, w, s, r, rot, fps):
         vf_parts = [f"fps={fps}", f"scale={w}:-1:flags=lanczos"]
@@ -61,16 +61,13 @@ class FfmpegConverter:
             vf_parts.append(f"setpts={1.0/s}*PTS")
         if r:
             vf_parts.append("reverse")
-        filter_str = ",".join(vf_parts)
+        base_filter = ",".join(vf_parts)
         
-        # 使用 libwebp 替代 GIF 的 palettegen 算法
+        # 使用高质量调色板算法生成标准 GIF
+        filter_str = f"{base_filter},split[s0][s1];[s0]palettegen=max_colors=256:stats_mode=diff[p];[s1][p]paletteuse=dither=bayer:bayer_scale=3"
         cmd = [
             "ffmpeg", "-y", "-i", in_p,
             "-vf", filter_str,
-            "-c:v", "libwebp",
-            "-lossless", "0",
-            "-compression_level", "6",
-            "-q:v", "90",
             "-loop", "0",
             out_p
         ]

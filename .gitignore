@@ -1,3 +1,6 @@
+# Python cache
+__pycache__/
+*.pyc
 
 # Auto-added by upload script
 上传GitHub.py

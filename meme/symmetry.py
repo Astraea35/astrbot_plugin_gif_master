@@ -17,7 +17,7 @@ class SymmetryProcessor:
             return
             
         input_path = os.path.join(self.temp_dir, f"sym_in_{uuid.uuid4().hex[:6]}.img")
-        out_path = os.path.join(self.temp_dir, f"sym_out_{uuid.uuid4().hex[:6]}.webp")
+        out_path = os.path.join(self.temp_dir, f"sym_out_{uuid.uuid4().hex[:6]}.gif")
         try:
             await self.resolver.download_media(url, input_path, event)
             await asyncio.to_thread(self._process_symmetry, input_path, out_path, direction)
@@ -67,4 +67,4 @@ class SymmetryProcessor:
             frames.append(f)
             durations.append(frame.info.get('duration', info_dur))
             
-        MediaResolver.save_webp_safely(out_p, frames, durations, im.info.get('loop', 0))
+        MediaResolver.save_gif_safely(out_p, frames, durations, im.info.get('loop', 0))

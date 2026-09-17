@@ -17,7 +17,7 @@ class MagicProcessor:
             return
             
         input_path = os.path.join(self.temp_dir, f"in_{uuid.uuid4().hex[:6]}.img")
-        out_path = os.path.join(self.temp_dir, f"magic_{uuid.uuid4().hex[:6]}.webp")
+        out_path = os.path.join(self.temp_dir, f"magic_{uuid.uuid4().hex[:6]}.gif")
         try:
             await self.resolver.download_media(url, input_path, event)
             await asyncio.to_thread(self._process_pipeline, input_path, out_path, action, param)
@@ -59,4 +59,4 @@ class MagicProcessor:
         elif action == "speed":
             durations = [max(30, int(d / param)) for d in durations]
             
-        MediaResolver.save_webp_safely(out_p, frames, durations, im.info.get('loop', 0))
+        MediaResolver.save_gif_safely(out_p, frames, durations, im.info.get('loop', 0))

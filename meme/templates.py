@@ -32,7 +32,7 @@ class TemplateProcessor:
             self_url = f"http://q.qlogo.cn/headimg_dl?dst_uin={event.message_obj.sender.user_id}&spec=640"
             await self.resolver.download_media(self_url, input_self, event)
         
-        out_path = os.path.join(self.temp_dir, f"tpl_{uuid.uuid4().hex[:6]}.webp")
+        out_path = os.path.join(self.temp_dir, f"tpl_{uuid.uuid4().hex[:6]}.gif")
         try:
             await self.resolver.download_media(target_url, input_target, event)
             await asyncio.to_thread(self._render_template, input_target, input_self, out_path, template_name)
@@ -128,4 +128,4 @@ class TemplateProcessor:
         else:
             raise Exception(f"未知模板: {mode}")
         
-        MediaResolver.save_webp_safely(out_p, frames, durations, loop=0)
+        MediaResolver.save_gif_safely(out_p, frames, durations, loop=0)

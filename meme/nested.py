@@ -22,7 +22,7 @@ class NestedProcessor:
             return
             
         input_path = os.path.join(self.temp_dir, f"nest_in_{uuid.uuid4().hex[:6]}.img")
-        out_path = os.path.join(self.temp_dir, f"nest_out_{uuid.uuid4().hex[:6]}.webp")
+        out_path = os.path.join(self.temp_dir, f"nest_out_{uuid.uuid4().hex[:6]}.gif")
         try:
             await self.resolver.download_media(url, input_path, event)
             await asyncio.to_thread(self._process_nested, input_path, out_path, text)
@@ -84,7 +84,7 @@ class NestedProcessor:
             draw.text((mini_x + mini_gif_size + 8, row_y), right_text, font=font, fill=text_color)
             raw_frames.append(canvas)
         
-        # 直接输出高品质 WebP，省去原本 GIF 强制的 256 色 quantization
+        # 保存为标准 GIF 动图
         duration = original_gif.info.get('duration', 100)
         loop = original_gif.info.get('loop', 0)
-        MediaResolver.save_webp_safely(out_p, raw_frames, duration, loop=loop)
+        MediaResolver.save_gif_safely(out_p, raw_frames, duration, loop=loop)

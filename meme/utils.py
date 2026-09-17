@@ -265,28 +265,30 @@ class MediaResolver:
         return ImageFont.load_default()
 
     @staticmethod
-    def save_webp_safely(out_filename: str, frames, durations, loop=0):
-        """将帧序列以高画质 WebP 格式无损保存"""
-        out_frames = [f.convert('RGBA') for f in frames]
+    def save_gif_safely(out_filename: str, frames, durations, loop=0):
+        """将帧序列保存为高兼容性的标准 GIF 动图"""
+        if not frames:
+            return
+        out_frames = [f.convert('RGBA') if f.mode != 'RGBA' else f for f in frames]
             
         if len(out_frames) > 1:
             out_frames[0].save(
-                out_filename, format='WEBP', save_all=True, append_images=out_frames[1:],
-                duration=durations, loop=loop, quality=95, method=6
+                out_filename, format='GIF', save_all=True, append_images=out_frames[1:],
+                duration=durations, loop=loop, disposal=2
             )
         elif len(out_frames) == 1:
             out_frames[0].save(
-                out_filename, format='WEBP', quality=95, method=6
+                out_filename, format='GIF'
             )
 
     # 保持兼容别名
-    save_gif_safely = save_webp_safely
+    save_webp_safely = save_gif_safely
 
     async def respond_result(self, event: AstrMessageEvent, file_path: str):
         if self.config.get("send_mode") == "作为文件发送":
             with open(file_path, "rb") as f:
                 b64 = base64.b64encode(f.read()).decode()
-            extension = os.path.splitext(file_path)[1] or ".webp"
+            extension = os.path.splitext(file_path)[1] or ".gif"
             file_name = f"meme_{uuid.uuid4().hex[:6]}{extension}"
             target = event.message_obj.group_id or event.message_obj.sender.user_id
             action = 'send_group_msg' if event.message_obj.group_id else 'send_private_msg'
